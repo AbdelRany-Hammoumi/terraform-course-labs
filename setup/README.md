@@ -4,32 +4,30 @@ Get your machine ready for the Terraform course. Target time: **15 minutes**.
 
 ## 1. Terraform >= 1.6
 
-### Recommended: tfenv (version manager)
+### Windows (WSL) / Linux (Ubuntu/Debian)
+
+All commands below run inside your WSL terminal.
 
 ```bash
-# macOS
-brew install tfenv
-
-# Linux
-git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+  gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+  https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt-get update && sudo apt-get install -y terraform
 ```
 
-Then install and activate:
+### macOS
 
 ```bash
-tfenv install 1.11.4
-tfenv use 1.11.4
-terraform -version
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
 ```
 
-### Alternative: direct download
-
-Download the binary for your platform from https://releases.hashicorp.com/terraform/ and place it in a directory on your `PATH` (`/usr/local/bin` works on both macOS and Linux).
+### Verify
 
 ```bash
-# Verify
 terraform -version
 # Expected: Terraform v1.x.x (>= 1.6)
 ```
@@ -37,6 +35,22 @@ terraform -version
 ## 2. Docker
 
 You need a running Docker daemon, not just the binary.
+
+### Windows (WSL)
+
+1. Download and install **Docker Desktop** from https://www.docker.com/products/docker-desktop/
+2. During installation, make sure **Use WSL 2 based engine** is checked.
+3. Once installed, open Docker Desktop and go to **Settings > Resources > WSL Integration**.
+4. Enable integration with your default WSL distribution (e.g. Ubuntu).
+5. Click **Apply & restart**.
+6. Open your WSL terminal and verify:
+
+```bash
+docker ps
+# Expected: empty table, no errors
+```
+
+Docker Desktop handles the daemon — do not install Docker Engine inside WSL separately.
 
 ### macOS — Docker Desktop
 
@@ -91,18 +105,48 @@ sudo apt-get install -y git
 
 ## 4. VS Code + Terraform extension
 
-### Install VS Code
+### Windows (WSL)
 
-- macOS: `brew install --cask visual-studio-code`
-- Linux: https://code.visualstudio.com/docs/setup/linux
+1. Install **VS Code on Windows** (not inside WSL): download from https://code.visualstudio.com/ or via `winget`:
 
-### Install the Terraform extension
+```powershell
+# Run in PowerShell (Windows side)
+winget install Microsoft.VisualStudioCode
+```
+
+2. Open VS Code and install the **WSL** extension (`ms-vscode-remote.remote-wsl`). This lets VS Code run its backend inside your WSL distribution while the UI stays on Windows.
+3. From your WSL terminal, open any folder with:
+
+```bash
+code .
+```
+
+VS Code opens on Windows and connects to WSL automatically. The bottom-left corner shows **WSL: Ubuntu** (or your distribution name) — this confirms the connection is active.
+
+4. Install the Terraform extension (from the WSL-connected VS Code):
 
 ```bash
 code --install-extension hashicorp.terraform
 ```
 
-This gives you syntax highlighting, autocompletion, and `terraform fmt` on save.
+All terminal, file access, and extensions run inside WSL. You edit in Windows, everything executes in Linux.
+
+### macOS
+
+```bash
+brew install --cask visual-studio-code
+code --install-extension hashicorp.terraform
+```
+
+### Linux
+
+Install VS Code following https://code.visualstudio.com/docs/setup/linux, then:
+
+```bash
+code --install-extension hashicorp.terraform
+```
+
+The Terraform extension gives you syntax highlighting, autocompletion, and `terraform fmt` on save.
 
 ## 5. Clone the lab repo
 
@@ -171,14 +215,10 @@ Your shell cannot find the binary. Check where it is and add it to your `PATH`:
 
 ```bash
 # Find the binary
-which terraform || find /usr/local /opt/homebrew ~/.tfenv -name terraform 2>/dev/null
+which terraform || find /usr/local /opt/homebrew -name terraform 2>/dev/null
 
 # Add to PATH (adjust the path to match your install)
 echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-
-# If using tfenv
-echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
