@@ -34,7 +34,7 @@ Each lab directory contains:
 ## Quick start
 
 ```bash
-git clone https://github.com/<org>/terraform-course-labs.git
+git clone https://github.com/AbdelRany-Hammoumi/terraform-course-labs.git
 cd terraform-course-labs/setup && ./check-setup.sh
 cd ../day1/lab1-first-resource && cat README.md
 ```

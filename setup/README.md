@@ -107,7 +107,7 @@ This gives you syntax highlighting, autocompletion, and `terraform fmt` on save.
 ## 5. Clone the lab repo
 
 ```bash
-git clone https://github.com/<org>/terraform-course-labs.git
+git clone https://github.com/AbdelRany-Hammoumi/terraform-course-labs.git
 cd terraform-course-labs
 ```
 
