@@ -6,7 +6,7 @@ Get your machine ready for the Terraform course. Target time: **15 minutes**.
 
 ### Windows (WSL) / Linux (Ubuntu/Debian)
 
-All commands below run inside your WSL terminal.
+Run these commands in your terminal (WSL terminal on Windows).
 
 ```bash
 sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
@@ -37,6 +37,14 @@ terraform -version
 You need a running Docker daemon, not just the binary.
 
 ### Windows (WSL)
+
+> **WSL 2 required.** Docker Desktop needs WSL 2, not WSL 1. Check your version in PowerShell:
+>
+> ```powershell
+> wsl --version
+> ```
+>
+> If you see `WSL version: 1.x` or the command fails, upgrade with `wsl --update` then restart your terminal.
 
 1. Download and install **Docker Desktop** from https://www.docker.com/products/docker-desktop/
 2. During installation, make sure **Use WSL 2 based engine** is checked.
@@ -87,6 +95,17 @@ docker ps
 
 ## 3. Git
 
+### Windows (WSL) / Linux
+
+Git is pre-installed on most WSL distributions and Linux systems. Verify and install if missing:
+
+```bash
+git --version
+
+# If missing:
+sudo apt-get update && sudo apt-get install -y git
+```
+
 ### macOS
 
 ```bash
@@ -95,12 +114,6 @@ git --version
 
 # If missing:
 xcode-select --install
-```
-
-### Linux
-
-```bash
-sudo apt-get install -y git
 ```
 
 ## 4. VS Code + Terraform extension
@@ -155,8 +168,6 @@ git clone https://github.com/AbdelRany-Hammoumi/terraform-course-labs.git
 cd terraform-course-labs
 ```
 
-> Replace `<org>` with the GitHub organization provided by your instructor.
-
 ## 6. Validate your setup
 
 ```bash
@@ -209,6 +220,15 @@ sudo usermod -aG docker $USER
 # Then log out and back in
 ```
 
+### Docker not working on WSL
+
+If `docker ps` fails inside your WSL terminal:
+
+1. **Docker Desktop not running** — Launch Docker Desktop from the Windows Start menu. Wait for the whale icon in the system tray to stop animating.
+2. **WSL integration not enabled** — Open Docker Desktop > **Settings > Resources > WSL Integration** and make sure your distribution (e.g. Ubuntu) is toggled on. Click **Apply & restart**.
+3. **Wrong WSL version** — Docker Desktop requires WSL 2. Check with `wsl --version` in PowerShell. If you are on WSL 1, run `wsl --update` and restart.
+4. **Terminal opened before Docker Desktop** — Close and reopen your WSL terminal after Docker Desktop finishes starting.
+
 ### `terraform` not found after install
 
 Your shell cannot find the binary. Check where it is and add it to your `PATH`:
@@ -223,3 +243,11 @@ source ~/.bashrc
 ```
 
 On macOS with zsh, replace `~/.bashrc` with `~/.zshrc`.
+
+### `code` not found on WSL
+
+VS Code adds itself to the WSL PATH automatically when installed on Windows. If `code` is not found:
+
+1. Make sure VS Code is installed **on Windows**, not inside WSL.
+2. Close and reopen your WSL terminal — the PATH update requires a new session.
+3. If it still fails, open VS Code on Windows, press `Ctrl+Shift+P`, type `Shell Command: Install 'code' command in PATH`, and run it. Then reopen WSL.

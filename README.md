@@ -4,6 +4,8 @@ Hands-on labs for the 3-day Terraform course. Clone this repo, follow the README
 
 ## Prerequisites
 
+**Windows users**: all labs run inside WSL 2 (Ubuntu recommended). Make sure WSL 2 is installed and up to date before proceeding (`wsl --version` in PowerShell).
+
 Install all required tools **before Day 1**: see [`setup/README.md`](setup/README.md).
 
 Run the validation script to confirm everything works:
@@ -38,8 +40,6 @@ git clone https://github.com/AbdelRany-Hammoumi/terraform-course-labs.git
 cd terraform-course-labs/setup && ./check-setup.sh
 cd ../day1/lab1-first-resource && cat README.md
 ```
-
-> Replace `<org>` with the GitHub organization provided by your instructor.
 
 ## Labs
 
