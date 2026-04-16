@@ -1,0 +1,1 @@
+{"environment":"dev","services":{"api":"enabled","db":"postgres"},"version":"1.0.0"}
