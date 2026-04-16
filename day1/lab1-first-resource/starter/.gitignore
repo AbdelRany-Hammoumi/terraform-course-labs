@@ -1,0 +1,9 @@
+# Local generated files
+hello.txt
+app-config.json
+
+# Terraform state & lock files (keep .terraform.lock.hcl in VCS, exclude state)
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
