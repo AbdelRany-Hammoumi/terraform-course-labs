@@ -1,11 +1,28 @@
-# TODO: Configure Terraform and the local provider
-# - required_version >= 1.6
-# - hashicorp/local provider ~> 2.5
+terraform {
+  required_version = ">= 1.6"
 
-# TODO: Create a local_file resource named "app_config"
-# - filename: output/app-config.json
-# - content: JSON with "app" and "environment" keys
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5"
+    }
+  }
+}
 
-# TODO: Create a local_file resource named "metadata"
-# - filename: output/metadata.txt
-# - content: a message indicating the file is managed by Terraform
+resource "local_file" "app_config" {
+  filename = "${path.module}/output/app-config.json"
+  content  = jsonencode({
+    app         = "lab3"
+    environment = "staging"
+  })
+}
+
+resource "local_file" "info" {
+  filename = "${path.module}/output/metadata.txt"
+  content  = "Managed by Terraform — do not edit manually"
+}
+
+resource "local_file" "lock_test" {
+  filename = "${path.module}/output/lock-test.txt"
+  content  = "Resource added to demonstrate state locking"
+}
