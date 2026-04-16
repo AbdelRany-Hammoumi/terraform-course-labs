@@ -6,3 +6,4 @@ Il est composé de :
 - Maori SAYOUD--LECLERC
 - Hodari BIGWI
 - Théo DEBAY
+- Jordan MORITZ
