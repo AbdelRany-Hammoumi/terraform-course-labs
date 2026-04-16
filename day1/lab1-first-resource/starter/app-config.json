@@ -1,0 +1,1 @@
+{"environement":"dev","services":{"api":"https://api.example.com","db":"postgresql://localhost:5432"},"version":"1.0"}

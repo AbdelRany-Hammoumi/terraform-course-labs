@@ -74,6 +74,23 @@ file_count = 3
 
 Run `terraform plan` and verify the variables resolve correctly in the output.
 
+results = 
+
+'''
+# local_file.project must be replaced
+-/+ resource "local_file" "project" {
+      ~ content              = jsonencode(
+          ~ {
+              ~ project_name = "my-terraform-lab" -> "terraform-lab2"
+              ~ tags         = {
+                  + course = "terraform-master"
+                  + owner  = "student"
+                }
+                # (1 unchanged attribute hidden)
+            } # forces replacement
+        )
+}'''
+
 ### Step 5 — Test variable precedence
 
 This step is the most important in the lab. Run each command below and observe which value actually takes effect.
@@ -96,6 +113,8 @@ terraform plan -var="environment=staging"
 ```
 
 Which value wins?
+
+its -var flag
 
 **The correct precedence order, from highest to lowest:**
 
@@ -146,6 +165,34 @@ terraform output
 terraform output config_filename
 terraform output -json
 ```
+
+output "config_filename" {
+
+    description = "the path to the generated file"
+    value   = "${local_file.config.filename}"
+    sensitive = true
+
+}
+
+output "config_content" {
+
+    description = "read the Json content"
+    value = jsondecode(resource.local_file.config.content)
+
+}
+
+output "project_summary" {
+    description = "combinaison du nom de projet et de l'environement"
+    
+    value = join("-",[var.project_name, var.environment])
+  
+}
+
+output "read_back_content"{
+    description = "jsondecode de datasource"
+    value = jsondecode(data.local_file.read_config.content)
+}
+
 
 ### Step 8 — Trigger a validation error
 

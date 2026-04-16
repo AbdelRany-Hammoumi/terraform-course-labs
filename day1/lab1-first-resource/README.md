@@ -65,8 +65,16 @@ cat .terraform.lock.hcl
 
 Questions:
 1. Where was the provider binary downloaded?
+
+Dans le dossier ".terraform/"
+
 2. What information does `.terraform.lock.hcl` contain?
+
+Le hash exact des providers, et leur version exact.
+
 3. Should you commit this file to Git? Why?
+
+Oui pour garantir la reproductibilité.
 
 ### Step 3 — Create your first resource
 
@@ -83,8 +91,16 @@ terraform plan
 Before running `apply`, answer these questions by reading the plan output:
 
 1. How many resources will be created?
+
+Une seule ressource
+
 2. What does the `+` symbol mean?
+
+Ce sont les attributs ajoutés.
+
 3. What value does `id` show? Why?
+
+L'attribut (know after reply). Cela veut dire que la valeur sera assignée au moment de la création.
 
 ### Step 5 — Apply
 
@@ -101,7 +117,12 @@ cat terraform.tfstate
 
 Questions:
 1. What is the structure of `terraform.tfstate`? What fields do you recognize?
+
+C'est un fichier avec des attributs "versionn", "version de terraform", "serial", "lineage", "outputs", "ressources"
+
 2. Run `terraform apply` a second time without changing anything. What happens? Why?
+
+Aucun changement a était appliqué car la configuration n'a pas changée. 
 
 ### Step 6 — Observe an update
 
@@ -109,7 +130,12 @@ Change the `content` of your `local_file` resource to a different string. Run `t
 
 Questions:
 1. What symbol appears next to the resource this time? What does it mean?
+
+Le symbole -/+. Cela veut dire que la ressource sera détruite et remplacé.
+
 2. Is the resource destroyed and recreated, or updated in place?
+
+Elle est détruite en remplacé.
 
 Apply the change and verify the file content updated.
 
@@ -130,6 +156,8 @@ cat app-config.json
 
 Verify the output is valid JSON.
 
+Its valid
+
 ### Step 8 — Inspect the state
 
 ```bash
@@ -140,7 +168,12 @@ terraform show
 
 Questions:
 1. What is the difference between `terraform state list` and `terraform show`?
+
+'terraform state list' liste les ressources au moment de la commande et 'terraform show' montre l'état actuel de terraform.
+
 2. What attributes does Terraform track for your `local_file` resource?
+
+le contenu, le hash du contenu, les permissions, le nom du fichier et l'ID
 
 ### Step 9 — Destroy
 
@@ -148,7 +181,11 @@ Questions:
 terraform plan -destroy
 ```
 
-Read the plan. How many resources will be destroyed? Then:
+Read the plan. How many resources will be destroyed?
+
+2 ressources seront détruites
+
+ Then:
 
 ```bash
 terraform destroy
@@ -204,7 +241,11 @@ ls hello.txt app-config.json 2>/dev/null || echo "clean"
 
 1. **File permissions** — Add the `file_permission` argument to `local_file` and set it to `"0600"`. Run `terraform plan` — does it trigger an update or a recreate?
 
+Que cela va remplacer, donc recréer.
+
 2. **Sensitive file** — Replace `local_file` with `local_sensitive_file` for `app-config.json`. Run `terraform plan` — how does the plan output differ? Check the file permissions on disk after apply.
+
+Le file_permission passe de 0777 à 0700
 
 3. **Multiple resources with `count`** — Add a resource that creates 3 files using the `count` meta-argument:
    ```hcl

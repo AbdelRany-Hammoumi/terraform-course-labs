@@ -45,6 +45,7 @@ mkdir -p output
 terraform init
 terraform apply
 ```
+Check 
 
 ### Step 2 — Inspect the default state
 
@@ -64,8 +65,17 @@ cat terraform.tfstate | python3 -m json.tool | head -30
 
 Questions:
 1. Where is the state file stored by default?
+
+In the same folder as main.tf
+
 2. What is the `serial` number in the state file?
+
+Le serial designe la version du fichier
+
 3. What does `terraform.tfstate.backup` contain? When is it created?
+
+`terraform.tfstate.backup` contient la dernière sauvegarde connu de terraform. 
+Elle est crée lors d'un `terraform init`
 
 ### Step 3 — Add a `.gitignore`
 
@@ -145,6 +155,7 @@ cat output/app-config.json
 cat state/terraform.tfstate | python3 -m json.tool | grep serial
 # serial should have incremented
 ```
+"serial": 6
 
 ### Step 7 — Observe state locking
 
@@ -167,8 +178,16 @@ terraform plan
 
 Observe the output in Terminal 2. Questions:
 1. Does Terminal 2 succeed or fail?
+
+It fail 
+
 2. What error message do you see?
+
+Error acquiring the state lock
+
 3. What information does the lock message contain?
+
+│ Error message: resource temporarily unavailable
 
 Type `yes` in Terminal 1 to finish, then retry Terminal 2.
 
@@ -182,11 +201,41 @@ Practice the key state commands:
 # List all resources
 terraform state list
 
+#local_file.app_config
+#local_file.metadata
+#local_file.text
+
 # Show details for one resource
 terraform state show local_file.app_config
 
+"""
+resource "local_file" "app_config" {
+    content              = jsonencode(
+        {
+            app          = "lab3"
+            environement = "staging"
+        }
+    )
+    content_base64sha256 = "kMPtAs2inOBbgPUV763a/KhAHpbTzla1n8aRAK5qOUI="
+    content_base64sha512 = "FJOu7ICIqd3zPSvA37BEkzpYsKNLJf0MLGSjgBUEAv12sbxao5pn4bdyy+ixRRWoFz04yIYlDXjEy+C8THzHiw=="
+    content_md5          = "9a49bb8b85c1cfbbf807f7c2daee1a92"
+    content_sha1         = "f8562ab6fc828019484ab68124edc358233836b5"
+    content_sha256       = "90c3ed02cda29ce05b80f515efaddafca8401e96d3ce56b59fc69100ae6a3942"
+    content_sha512       = "1493aeec8088a9ddf33d2bc0dfb044933a58b0a34b25fd0c2c64a380150402fd76b1bc5aa39a67e1b772cbe8b14515a8173d38c886250d78c4cbe0bc4c7cc78b"
+    directory_permission = "0777"
+    file_permission      = "0777"
+    filename             = "output/app-config.json"
+    id                   = "f8562ab6fc828019484ab68124edc358233836b5"
+}
+"""
+
 # Rename a resource without destroying it
 terraform state mv local_file.metadata local_file.info
+
+"""
+Move "local_file.metadata" to "local_file.info"
+Successfully moved 1 object(s).
+"""
 
 # Update main.tf to match — rename the resource block from "metadata" to "info"
 # Then verify:
