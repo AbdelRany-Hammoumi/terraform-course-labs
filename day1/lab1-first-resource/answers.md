@@ -33,3 +33,14 @@ and there is a `-/+` symbol for the resource which signifies that it is not upda
 
 # STEP 9
 1. Both resources will be `destroyed`
+
+# GOING FURTHER
+1. It triggers a recreate : `-/+` symbol
+2. During the plan phase, using `local_sensitive_file` hides the content.
+`+ content = (sensitive value)`
+After applying, the right are as such
+`-rwx------ 1 gralfjord gralfjord  125 Apr 17 11:09 app-config.json`
+Meaning only the author can interact with the file.
+3. When listing, the numbered files are separated using the indexes. But using show, they are identified as `"numbered"` (without any index).
+4. The syntax for `terraform import` is `terraform import <resource_type>.<name> <id>`
+for the type `local_file`, the `id` parameter relates to the filepath of the desired to-be-imported file.
