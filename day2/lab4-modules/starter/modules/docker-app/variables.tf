@@ -25,12 +25,17 @@ variable "internal_port" {
 
 variable "external_port" {
     type = number
-    default = 8000
+    default = 8081
     description = "Port mappped on the host"
 }
 
 variable "env_vars" {
     type= map(string)
-    default = {}
+    default = {
+        "APP_NAME" = "The alleged app",
+        "ENVIRONMENT" = "dev",
+        "INTERNAL_PORT" = "80",
+        "EXTERNAL_PORT" = "8081"
+    }
     description = "Environement variables to pass to the container"
 }

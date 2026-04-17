@@ -29,4 +29,6 @@ resource "docker_container" "app" {
         external = var.external_port
     }
 
+    env = [for k, v in var.env_vars : "${k}=${v}"]
+
 }

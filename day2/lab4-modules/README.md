@@ -188,8 +188,23 @@ terraform plan
 
 Before applying, answer these questions by reading the plan:
 1. How many resources will Terraform create in total?
+
+Terraform va créé 6 nouvelles resources 
+
 2. How are resources named in the plan? (look for `module.frontend.` and `module.backend.` prefixes)
+
+module.backend.docker_container.app
+module.backend.docker_image.app
+module.backend.local_file.config
+module.frontend.docker_container.app
+module.frontend.docker_image.app
+module.frontend.local_file.config
+
 3. Which module is created first? Why?
+
+Selon la console, le premier module créé est backend.docker_container.app.
+Il est créé en premier car le module frontend  starter\main.tf reference le module backend,
+Ce qui cause Terraform de créé module.backend en premier.
 
 ```bash
 terraform apply
@@ -201,19 +216,77 @@ terraform apply
 # Containers are running
 docker ps --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
 
+# Terminal : 
+
+NAMES          PORTS                  STATUS
+frontend-dev   0.0.0.0:8081->80/tcp   Up 30 seconds
+backend-dev    0.0.0.0:3000->80/tcp   Up 9 minutes
+
 # Outputs are accessible
 terraform output
 
+#Terminal : 
+
+backend_container = "backend-dev"
+backend_url = "http://localhost:3000"
+frontend_container = "frontend-dev"
+frontend_url = "http://localhost:8081"
+
 # Config files were generated
 cat output/frontend-dev-config.json | python3 -m json.tool
+
+
+# Terminal :
+
+{
+    "app_name": "frontend",
+    "environment": "dev",
+    "port": 8081
+}
+
 cat output/backend-dev-config.json | python3 -m json.tool
+
+# Terminal :
+
+{
+    "app_name": "backend",
+    "environment": "dev",
+    "port": 3000
+}
 
 # State shows module namespacing
 terraform state list
 
+# Terminal :
+
+module.backend.docker_container.app
+module.backend.docker_image.app
+module.backend.local_file.config
+module.frontend.docker_container.app
+module.frontend.docker_image.app
+module.frontend.local_file.config
+
 # Test the endpoints
 curl -s http://localhost:8080 | head -5
+
+# Terminal : 
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+
 curl -s http://localhost:3000 | head -5
+
+# Terminal :
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+
 ```
 
 ### Step 9 — Test reusability
@@ -226,8 +299,17 @@ terraform apply -var="environment=staging"
 
 Questions:
 1. What happens to the containers? Are they updated in place or replaced?
+
+Ils sont remplacés : Plan: 4 to add, 0 to change, 4 to destroy.
+
 2. Check `docker ps` — what are the new container names?
+
+Les noms de conteneurs ont étaient changé en backend_staging et frontend-staging
+
 3. Check the config files — did the filenames change?
+
+Le contenus des fichiers de configurations n'ont pas changés 
+malgré le apply -var="environment=staging"
 
 ### Step 10 — Inspect module encapsulation
 
@@ -240,6 +322,8 @@ output "frontend_image_id" {
 ```
 
 Run `terraform plan`. What happens? Why?
+
+Une erreur s'active. Selon le message, le module "frontend" n'a pas était déclaré.
 
 Remove the broken output. The correct way is to add an `image_id` output inside the module's `outputs.tf`, then reference it as `module.frontend.image_id`.
 

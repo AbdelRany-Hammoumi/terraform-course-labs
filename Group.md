@@ -129,3 +129,267 @@ output "read_back_content"{
     value = jsondecode(data.local_file.read_config.content)
 }
 
+## lab 3
+
+# step 2
+
+Before migrating, understand what you have:
+
+```bash
+ls terraform.tfstate
+terraform state list
+terraform state show local_file.app_config
+```
+
+Check the state file format:
+
+```bash
+cat terraform.tfstate | python3 -m json.tool | head -30
+```
+
+Questions:
+1. Where is the state file stored by default?
+
+In the same folder as main.tf
+
+2. What is the `serial` number in the state file?
+
+Le serial designe la version du fichier
+
+3. What does `terraform.tfstate.backup` contain? When is it created?
+
+`terraform.tfstate.backup` contient la dernière sauvegarde connu de terraform. 
+Elle est crée lors d'un `terraform init`
+
+# step 6 
+
+Update `app_config` to use `"environment": "staging"` instead of `"dev"`. Then:
+
+```bash
+terraform plan
+# Expected: 1 to change
+
+terraform apply
+cat output/app-config.json
+# Expected: {"app":"lab3","environment":"staging"}
+
+# State file updated in the new location
+cat state/terraform.tfstate | python3 -m json.tool | grep serial
+# serial should have incremented
+```
+"serial": 6
+
+# step 7
+
+Open **two terminal windows** in the same directory.
+
+Local resources apply instantly, so we can't observe locking during apply. Instead, we'll use the interactive approval prompt to hold the lock open.
+
+In `main.tf`, add a third `local_file` resource (any content). Then in Terminal 1:
+
+**Terminal 1:**
+```bash
+terraform apply -lock-timeout=60s
+# When prompted, DO NOT type "yes" yet — leave it hanging
+```
+
+**Terminal 2 (while Terminal 1 is waiting for approval):**
+```bash
+terraform plan
+```
+
+Observe the output in Terminal 2. Questions:
+1. Does Terminal 2 succeed or fail?
+
+It fail 
+
+2. What error message do you see?
+
+Error acquiring the state lock
+
+3. What information does the lock message contain?
+
+│ Error message: resource temporarily unavailable
+
+# step 8
+
+```bash
+# List all resources
+terraform state list
+
+#local_file.app_config
+#local_file.metadata
+#local_file.text
+
+# Show details for one resource
+terraform state show local_file.app_config
+
+"
+resource "local_file" "app_config" {
+    content              = jsonencode(
+        {
+            app          = "lab3"
+            environement = "staging"
+        }
+    )
+    content_base64sha256 = "kMPtAs2inOBbgPUV763a/KhAHpbTzla1n8aRAK5qOUI="
+    content_base64sha512 = "FJOu7ICIqd3zPSvA37BEkzpYsKNLJf0MLGSjgBUEAv12sbxao5pn4bdyy+ixRRWoFz04yIYlDXjEy+C8THzHiw=="
+    content_md5          = "9a49bb8b85c1cfbbf807f7c2daee1a92"
+    content_sha1         = "f8562ab6fc828019484ab68124edc358233836b5"
+    content_sha256       = "90c3ed02cda29ce05b80f515efaddafca8401e96d3ce56b59fc69100ae6a3942"
+    content_sha512       = "1493aeec8088a9ddf33d2bc0dfb044933a58b0a34b25fd0c2c64a380150402fd76b1bc5aa39a67e1b772cbe8b14515a8173d38c886250d78c4cbe0bc4c7cc78b"
+    directory_permission = "0777"
+    file_permission      = "0777"
+    filename             = "output/app-config.json"
+    id                   = "f8562ab6fc828019484ab68124edc358233836b5"
+}"
+
+# Rename a resource without destroying it
+terraform state mv local_file.metadata local_file.info
+
+"""
+Move "local_file.metadata" to "local_file.info"
+Successfully moved 1 object(s).
+"""
+
+
+
+## lab 4
+
+# step 7 
+
+Before applying, answer these questions by reading the plan:
+1. How many resources will Terraform create in total?
+
+Terraform va créé 6 nouvelles resources 
+
+2. How are resources named in the plan? (look for `module.frontend.` and `module.backend.` prefixes)
+
+module.backend.docker_container.app
+module.backend.docker_image.app
+module.backend.local_file.config
+module.frontend.docker_container.app
+module.frontend.docker_image.app
+module.frontend.local_file.config
+
+3. Which module is created first? Why?
+
+Selon la console, le premier module créé est backend.docker_container.app.
+Il est créé en premier car le module frontend  starter\main.tf reference le module backend,
+Ce qui cause Terraform de créé module.backend en premier.
+
+# step 8
+
+```bash
+# Containers are running
+docker ps --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
+
+# Terminal : 
+
+NAMES          PORTS                  STATUS
+frontend-dev   0.0.0.0:8081->80/tcp   Up 30 seconds
+backend-dev    0.0.0.0:3000->80/tcp   Up 9 minutes
+
+# Outputs are accessible
+terraform output
+
+#Terminal : 
+
+backend_container = "backend-dev"
+backend_url = "http://localhost:3000"
+frontend_container = "frontend-dev"
+frontend_url = "http://localhost:8081"
+
+# Config files were generated
+cat output/frontend-dev-config.json | python3 -m json.tool
+
+
+# Terminal :
+
+{
+    "app_name": "frontend",
+    "environment": "dev",
+    "port": 8081
+}
+
+cat output/backend-dev-config.json | python3 -m json.tool
+
+# Terminal :
+
+{
+    "app_name": "backend",
+    "environment": "dev",
+    "port": 3000
+}
+
+# State shows module namespacing
+terraform state list
+
+# Terminal :
+
+module.backend.docker_container.app
+module.backend.docker_image.app
+module.backend.local_file.config
+module.frontend.docker_container.app
+module.frontend.docker_image.app
+module.frontend.local_file.config
+
+# Test the endpoints
+curl -s http://localhost:8080 | head -5
+
+# Terminal : 
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+
+curl -s http://localhost:3000 | head -5
+
+# Terminal :
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+
+```
+
+# step 9
+
+Change the environment to `staging` and apply:
+
+```bash
+terraform apply -var="environment=staging"
+```
+
+Questions:
+1. What happens to the containers? Are they updated in place or replaced?
+
+Ils sont remplacés : Plan: 4 to add, 0 to change, 4 to destroy.
+
+2. Check `docker ps` — what are the new container names?
+
+Les noms de conteneurs ont étaient changé en backend_staging et frontend-staging
+
+3. Check the config files — did the filenames change?
+
+Le contenus des fichiers de configurations n'ont pas changés 
+malgré le apply -var="environment=staging"
+
+# step 10
+
+Try adding this output to the root `outputs.tf`:
+
+```hcl
+output "frontend_image_id" {
+  value = module.frontend.docker_image.app.image_id
+}
+```
+
+Run `terraform plan`. What happens? Why?
+
+Une erreur s'active. Selon le message, le module "frontend" n'a pas était déclaré.
+
