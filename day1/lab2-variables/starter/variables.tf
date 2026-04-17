@@ -23,7 +23,21 @@ variable "tags" {
 }
 
 variable "file_count" {
- description = "number of files in the project i guess"
- type = number
- default = 1
+    description = "number of files in the project i guess"
+    type = number
+    default = 1
+}
+
+variable "api_key" {
+    sensitive = true
+    default = "yo"
+}
+
+variable "app_config" {
+  type = object({
+    name    = string
+    port    = number
+    enabled = bool
+  })
+  default = {name= "david", port="1234", enabled=false}
 }
