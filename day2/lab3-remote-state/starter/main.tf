@@ -27,3 +27,8 @@ resource "local_file" "easter_egg" {
     filename = "${path.module}/output/surprise.txt"
     content = "WE'RE NO STRANGERS TO LOOOOOVE YOU KNOW THE RULES AND SO DO IIII"
 }
+
+resource "local_file" "manual" {
+  filename = "manual.txt"
+  content  = "manual"
+}

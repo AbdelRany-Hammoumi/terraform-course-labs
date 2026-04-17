@@ -31,3 +31,6 @@ Simply put, it forbids any actions that would modify the tfstate, as an action i
 `{"ID":"ce5c8726-ce98-0f8f-2a72-b188cf0e3eb0","Operation":"OperationTypeApply","Info":"","Who":"gralfjord@GralfJord-L-ordinateur","Version":"1.11.4","Created":"2026-04-16T11:32:42.856832435Z","Path":"state/terraform.tfstate"}`
 Simply put, it contains the info of the currently locking action, in our case the pending apply action, which can be seen with the `Operation` paramater : `{"Operation":"OperationTypeApply"}`.
 It also contains the author of the current action, its creation timestamp, its ID and the current `terraform.tfstate` file.
+
+# GOING FURTHER
+1. DISCLAIMER : None of my group members own a AWS licence
