@@ -111,8 +111,8 @@ After migration, verify:
 # State moved to new location
 ls state/terraform.tfstate
 
-# Old state is gone
-ls terraform.tfstate 2>/dev/null || echo "Old state removed — migration complete"
+# Old state is now empty (Terraform keeps the file but clears its content)
+cat terraform.tfstate
 
 # Resources are still tracked
 terraform state list
